@@ -1,0 +1,34 @@
+{
+  "name": "wagmi-project",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "dev:inspect": "nuxt dev --inspect",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "clean": "nuxt clean",
+    "analyze": "nuxt analyze"
+  },
+  "dependencies": {
+    "@tanstack/vue-query": ">=5.45.0",
+    "@wagmi/vue": "latest",
+    "nuxt": "^3.11.2",
+    "viem": "latest",
+    "vue": ">=3.4.21",
+    "vue-router": "^4.3.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.16",
+    "@types/node": "^24.10.0",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vue/devtools-api": "^8.0.3",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.16",
+    "vite": "^7.1.12"
+  }
+}
