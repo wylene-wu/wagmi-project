@@ -1,9 +1,10 @@
 import { cookieStorage, createConfig, createStorage, http } from "@wagmi/vue";
 import { mainnet, sepolia } from "@wagmi/vue/chains";
 import { injected, metaMask } from "@wagmi/vue/connectors";
+import { Chains } from "@/config/constant";
 
 export const config = createConfig({
-  chains: [mainnet, sepolia],
+  chains: Chains,
   connectors: [injected(), metaMask()],
   storage: createStorage({
     storage: cookieStorage,

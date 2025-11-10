@@ -1,27 +1,115 @@
 <script setup lang="ts">
-import { useChainId, useConnect } from "@wagmi/vue";
+import { ref, computed } from "vue";
+import { WalletIcons } from "@/config/constant";
+import type { WalletName } from "@/config/constant";
+import { useChainId, useConnect, useDisconnect, useAccount } from "@wagmi/vue";
+import { cn } from "@/utils/cn";
 
 const chainId = useChainId();
-const { connect, connectors, error, status } = useConnect();
-console.log("status", status);
+const { disconnect } = useDisconnect();
+const { connect, connectors, status } = useConnect();
+const { status: connectStatus, connector } = useAccount();
+const isShowModal = ref(false);
+const pendingConnectorId = ref<string | null>(null);
+
+const isConnected = computed(() => connectStatus.value === "connected");
+const isConnecting = computed(() => status.value === "pending");
+
+const closeModal = () => {
+  isShowModal.value = false;
+  pendingConnectorId.value = null;
+};
+
+const openModal = () => {
+  isShowModal.value = true;
+};
+
+const handleConnect = (connector: any) => {
+  pendingConnectorId.value = connector.id;
+  const chainIdValue = chainId.value;
+  connect({ connector, chainId: chainIdValue });
+};
+
+watch(isConnected, (newIsConnected) => {
+  if (newIsConnected && isShowModal.value) {
+    isShowModal.value = false;
+    pendingConnectorId.value = null;
+  }
+});
 </script>
 
 <template>
-  <h2>Connect</h2>
+  <button
+    @click="isConnected ? disconnect() : openModal()"
+    class="px-4 py-2 rounded-lg cursor-pointer border border-gray-400"
+  >
+    {{ isConnected ? "Disconnect" : "Connect Wallet" }}
+  </button>
 
-  <div class="flex flex-col gap-2">
-    <div
-      v-for="connector in connectors.filter((i) => i.name !== 'Injected')"
-      :key="connector.id"
-      type="button"
-      class="cursor-pointer mt-4 px-4 py-2 border border-gray-500 rounded-lg hover:bg-primary-dark"
-      @click="connect({ connector, chainId })"
+  <Teleport to="body">
+    <Transition
+      v-if="isShowModal"
+      name="modal"
+      enter-active-class="transition-all duration-200 ease-out"
+      enter-from-class="opacity-0 scale-90"
+      enter-to-class="opacity-100 scale-100"
+      leave-active-class="transition-all duration-200 ease-in"
+      leave-from-class="opacity-100 scale-100"
+      leave-to-class="opacity-0 scale-90"
+      appear
+      @click.self="isShowModal = false"
     >
-      {{ connector.name }}
-    </div>
-  </div>
-
-  <div v-if="!!error" class="text-red-500">
-    {{ error?.message }}
-  </div>
+      <div
+        class="flex justify-center items-center bg-black/20 fixed inset-0 z-50"
+      >
+        <div
+          class="p-8 py-12 rounded-[33px] bg-white relative min-w-[520px] shadow-2xl"
+        >
+          <img
+            src="/imgs/close.svg"
+            class="absolute right-4 top-4 cursor-pointer"
+            @click="closeModal"
+          />
+          <div>
+            <p class="font-bold text-2xl pb-4">Choose a wallet</p>
+            <div class="flex flex-col border border-amber-200 rounded-2xl">
+              <div
+                v-for="c in connectors.filter((i) => i.name !== 'Injected')"
+                :key="c.id"
+                type="button"
+                :class="
+                  cn(
+                    'cursor-pointer flex gap-2 items-center p-4 px-6 rounded-sm hover:bg-amber-100/20',
+                    'transition-colors duration-200',
+                    (c.id === connector?.id || c.id === pendingConnectorId) &&
+                      'bg-amber-100/20'
+                  )
+                "
+                @click="handleConnect(c)"
+              >
+                <img
+                  :src="c.icon || WalletIcons[c.name as WalletName] || ''"
+                  class="w-8 h-8"
+                  alt="Wallet icon"
+                />
+                <div class="font-bold">{{ c.name }}</div>
+                <div
+                  v-if="c.id === connector?.id"
+                  class="ml-auto text-green-500"
+                >
+                  Connected
+                </div>
+                <div
+                  v-else-if="isConnecting && c.id === pendingConnectorId"
+                  class="ml-auto text-blue-500"
+                >
+                  Connecting...
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>

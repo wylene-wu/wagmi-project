@@ -4,3 +4,11 @@
   --font-display: "Inter", "sans-serif";
   --color-primary: oklch(0.84 0.18 117.33);
 }
+
+@layer base {
+  body {
+    @apply bg-[#0A0A0A];
+    @apply text-white;
+    height: 100vh;
+  }
+}

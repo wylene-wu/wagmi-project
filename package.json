@@ -16,7 +16,9 @@
   "dependencies": {
     "@tanstack/vue-query": ">=5.45.0",
     "@wagmi/vue": "latest",
+    "clsx": "^2.1.1",
     "nuxt": "^3.11.2",
+    "tailwind-merge": "^3.3.1",
     "viem": "latest",
     "vue": ">=3.4.21",
     "vue-router": "^4.3.2"
