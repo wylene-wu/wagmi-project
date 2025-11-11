@@ -3,7 +3,6 @@ import { ref, computed } from "vue";
 import { useAccount, useDisconnect } from "@wagmi/vue";
 import { Chains } from "@/config/constant";
 import { formatAddress } from "@/utils/wallet";
-import { cn } from "@/utils/cn";
 
 const { disconnect } = useDisconnect();
 const { status: connectStatus, address, chain } = useAccount();
@@ -52,12 +51,10 @@ watch(isConnected, (newIsConnected) => {
         <div
           v-for="c in Chains"
           :key="c.id"
-          :class="
-            cn(
-              'cursor-pointer flex items-center gap-2.5 py-2.5 px-3 hover:bg-[#A1DBFE]/20',
-              c.id === chain?.id && 'bg-[#A1DBFE] hover:bg-[#A1DBFE]'
-            )
-          "
+          :class="[
+            'cursor-pointer flex items-center gap-2.5 py-2.5 px-3 hover:bg-[#A1DBFE]/20',
+            c.id === chain?.id ? 'bg-[#A1DBFE] hover:bg-[#A1DBFE]' : '',
+          ]"
         >
           <img :src="c.icon" class="w-5 h-5" />
           <p>{{ c.name }}</p>

@@ -3,7 +3,6 @@ import { ref, computed } from "vue";
 import { WalletIcons } from "@/config/constant";
 import type { WalletName } from "@/config/constant";
 import { useChainId, useConnect, useDisconnect, useAccount } from "@wagmi/vue";
-import { cn } from "@/utils/cn";
 
 const chainId = useChainId();
 const { disconnect } = useDisconnect();
@@ -58,6 +57,7 @@ watch(isConnected, (newIsConnected) => {
       leave-to-class="opacity-0 scale-90"
       appear
       @click.self="isShowModal = false"
+      class="text-black"
     >
       <div
         class="flex justify-center items-center bg-black/20 fixed inset-0 z-50"
@@ -72,19 +72,15 @@ watch(isConnected, (newIsConnected) => {
           />
           <div>
             <p class="font-bold text-2xl pb-4">Choose a wallet</p>
-            <div class="flex flex-col border border-amber-200 rounded-2xl">
+            <div class="flex flex-col rounded-2xl">
               <div
                 v-for="c in connectors.filter((i) => i.name !== 'Injected')"
                 :key="c.id"
                 type="button"
-                :class="
-                  cn(
-                    'cursor-pointer flex gap-2 items-center p-4 px-6 rounded-sm hover:bg-amber-100/20',
-                    'transition-colors duration-200',
-                    (c.id === connector?.id || c.id === pendingConnectorId) &&
-                      'bg-amber-100/20'
-                  )
-                "
+                :class="[
+                  'cursor-pointer flex gap-2 items-center p-4 px-6 rounded-lg hover:bg-amber-100/20 border border-amber-100/20 hover:border hover:border-amber-200',
+                  'transition-colors duration-200',
+                ]"
                 @click="handleConnect(c)"
               >
                 <img
