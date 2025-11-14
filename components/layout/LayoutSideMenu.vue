@@ -5,6 +5,7 @@ import {
   DashboardIcon,
   TransactionsIcon,
   SettingsIcon,
+  StakeIcon,
 } from "@/components/icons";
 
 const LinkArrays = [
@@ -14,15 +15,20 @@ const LinkArrays = [
     icon: DashboardIcon,
   },
   {
+    name: "Stake",
+    path: "/stake",
+    icon: StakeIcon,
+  },
+  {
     name: "Transactions",
     path: "/transactions",
     icon: TransactionsIcon,
   },
-  {
-    name: "Settings",
-    path: "/settings",
-    icon: SettingsIcon,
-  },
+  // {
+  //   name: "Settings",
+  //   path: "/settings",
+  //   icon: SettingsIcon,
+  // },
 ];
 
 const { isSidebarCollapsed, toggleSidebar } = useSidebar();

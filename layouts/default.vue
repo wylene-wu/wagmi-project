@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { useSidebar } from "@/composables/useSidebar";
+import { useAccount } from "@wagmi/vue";
+import { computed } from "vue";
 
+const { status } = useAccount();
+const isConnected = computed(() => status.value === "connected");
 const { isSidebarCollapsed } = useSidebar();
 </script>
 
@@ -16,7 +20,10 @@ const { isSidebarCollapsed } = useSidebar();
         ]"
       >
         <div class="flex-1 p-8 overflow-y-auto">
-          <slot />
+          <ClientOnly>
+            <Connect v-if="!isConnected" />
+            <slot v-else />
+          </ClientOnly>
         </div>
         <footer class="p-4 border-t border-gray-700 text-center text-gray-400">
           <p>© Wagmi Wallet App</p>
