@@ -4,8 +4,9 @@ import { WalletIcons } from "@/config/constant";
 import type { WalletName } from "@/config/constant";
 import { useChainId, useConnect, useDisconnect, useAccount } from "@wagmi/vue";
 
+import { ToggleIcon, WalletIcon } from "@/components/icons";
+
 const chainId = useChainId();
-const { disconnect } = useDisconnect();
 const { connect, connectors, status } = useConnect();
 const { status: connectStatus, connector } = useAccount();
 const isShowModal = ref(false);
@@ -38,12 +39,25 @@ watch(isConnected, (newIsConnected) => {
 </script>
 
 <template>
-  <button
-    @click="isConnected ? disconnect() : openModal()"
-    class="px-4 py-2 rounded-lg cursor-pointer border border-gray-400"
-  >
-    {{ isConnected ? "Disconnect" : "Connect Wallet" }}
-  </button>
+  <div class="w-full h-full flex flex-col justify-center items-center pb-[10%]">
+    <p class="text-[25px] pb-7 text-[#F3F4F5]">
+      <span class="text-[#A1DBFE] font-semibold">Welcome, &nbsp;</span>
+      Get started for your portfolio
+    </p>
+    <button
+      @click="openModal()"
+      class="w-[70%] p-[30px] rounded-[20px] cursor-pointer shadow-[0_0_8px_#A1DBFE] border border-gray-400 bg-[#1C1C1C]"
+    >
+      <div class="flex gap-[30px] items-center">
+        <WalletIcon class="w-12 h-12" />
+        <div class="flex-1 text-left">
+          <p class="text-[18px] font-semibold leading-loose">Connect Wallet</p>
+          <p class="text-[#6B6B6B]">Connect Wallet to get started</p>
+        </div>
+        <ToggleIcon class="w-8 h-8" />
+      </div>
+    </button>
+  </div>
 
   <Teleport to="body">
     <Transition
@@ -63,44 +77,39 @@ watch(isConnected, (newIsConnected) => {
         class="flex justify-center items-center bg-black/20 fixed inset-0 z-50"
       >
         <div
-          class="p-8 py-12 rounded-[33px] bg-white relative min-w-[520px] shadow-2xl"
+          class="p-10 py-12 rounded-[33px] bg-white relative min-w-[550px] shadow-2xl"
         >
-          <img
-            src="/imgs/close.svg"
-            class="absolute right-4 top-4 cursor-pointer"
-            @click="closeModal"
-          />
-          <div>
-            <p class="font-bold text-2xl pb-4">Choose a wallet</p>
-            <div class="flex flex-col rounded-2xl">
+          <div
+            class="absolute right-10 top-6 cursor-pointer w-8 h-8 rounded-full flex justify-center items-center"
+          >
+            <img src="/imgs/close.svg" class="" @click="closeModal" />
+          </div>
+          <p class="font-bold text-2xl pb-8">Choose a wallet</p>
+          <div class="flex flex-col rounded-2xl">
+            <div
+              v-for="c in connectors.filter((i) => i.name !== 'Injected')"
+              :key="c.id"
+              type="button"
+              :class="[
+                'cursor-pointer flex gap-2 items-center p-4 px-6 rounded-lg bg-white border border-transparent hover:bg-[#A1DBFE]/20  hover:border-[#A1DBFE] ',
+                'transition-colors duration-200',
+              ]"
+              @click="handleConnect(c)"
+            >
+              <img
+                :src="c.icon || WalletIcons[c.name as WalletName] || ''"
+                class="w-8 h-8"
+                alt="Wallet icon"
+              />
+              <div class="font-bold">{{ c.name }}</div>
+              <div v-if="c.id === connector?.id" class="ml-auto text-green-500">
+                Connected
+              </div>
               <div
-                v-for="c in connectors.filter((i) => i.name !== 'Injected')"
-                :key="c.id"
-                type="button"
-                :class="[
-                  'cursor-pointer flex gap-2 items-center p-4 px-6 rounded-lg hover:bg-amber-100/20 border border-amber-100/20 hover:border hover:border-amber-200',
-                  'transition-colors duration-200',
-                ]"
-                @click="handleConnect(c)"
+                v-else-if="isConnecting && c.id === pendingConnectorId"
+                class="ml-auto text-[#A1DBFE]"
               >
-                <img
-                  :src="c.icon || WalletIcons[c.name as WalletName] || ''"
-                  class="w-8 h-8"
-                  alt="Wallet icon"
-                />
-                <div class="font-bold">{{ c.name }}</div>
-                <div
-                  v-if="c.id === connector?.id"
-                  class="ml-auto text-green-500"
-                >
-                  Connected
-                </div>
-                <div
-                  v-else-if="isConnecting && c.id === pendingConnectorId"
-                  class="ml-auto text-blue-500"
-                >
-                  Connecting...
-                </div>
+                Connecting...
               </div>
             </div>
           </div>

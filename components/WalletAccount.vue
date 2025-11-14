@@ -25,7 +25,7 @@ watch(isConnected, (newIsConnected) => {
     <div
       v-if="isConnected"
       @click="openModal"
-      class="border border-[#C9793F] rounded-full px-4 py-2.5 cursor-pointer bg-[#0A0A0A] flex justify-between"
+      class="border border-[#C9793F] rounded-full px-4 py-2.5 cursor-pointer bg-[#0A0A0A] flex justify-between items-center gap-3"
     >
       <p class="font-medium text-sm">{{ formatAddress(address) }}</p>
       <div v-if="chain?.icon" class="flex items-center gap-2.5">
@@ -52,8 +52,8 @@ watch(isConnected, (newIsConnected) => {
           v-for="c in Chains"
           :key="c.id"
           :class="[
-            'cursor-pointer flex items-center gap-2.5 py-2.5 px-3 hover:bg-[#A1DBFE]/20',
-            c.id === chain?.id ? 'bg-[#A1DBFE] hover:bg-[#A1DBFE]' : '',
+            'cursor-pointer flex items-center gap-2.5 py-2.5 px-3 ',
+            c.id === chain?.id ? 'bg-[#A1DBFE] ' : 'hover:bg-[#A1DBFE]/20',
           ]"
         >
           <img :src="c.icon" class="w-5 h-5" />
