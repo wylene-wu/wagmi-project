@@ -20,8 +20,10 @@ const { isSidebarCollapsed } = useSidebar();
         ]"
       >
         <div class="flex-1 p-8 overflow-y-auto">
-          <Connect v-if="!isConnected" />
-          <slot v-else />
+          <ClientOnly>
+            <Connect v-if="!isConnected" />
+            <slot v-else />
+          </ClientOnly>
         </div>
         <footer class="p-4 border-t border-gray-700 text-center text-gray-400">
           <p>© Wagmi Wallet App</p>

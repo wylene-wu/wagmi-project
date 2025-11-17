@@ -5,12 +5,12 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "dev": "nuxt dev -p 4000",
     "dev:inspect": "nuxt dev --inspect",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "clean": "nuxt clean",
+    "clean": "nuxt cleanup",
     "analyze": "nuxt analyze"
   },
   "dependencies": {
