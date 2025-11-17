@@ -1,7 +1,7 @@
 <template>
-  <div class="flex justify-between gap-6 flex-wrap">
+  <div class="flex justify-between gap-6">
     <div
-      class="flex-1 md:flex-3 py-[25px] px-[30px] bg-[#1C1C1C] shadow-[0_0_8px_#A1DBFE] rounded-[20px] flex flex-col justify-between gap-10"
+      class="flex-[3_3_0px] py-[25px] px-[30px] bg-[#1C1C1C] shadow-[0_0_8px_#A1DBFE] rounded-[20px]"
     >
       <div class="flex justify-between items-center">
         <div class="flex items-center gap-2.5 text-[25px] font-semibold">
@@ -12,19 +12,19 @@
           Stake
         </button>
       </div>
-      <div>
+      <div class="pt-10">
         <p class="text-[40px] font-bold">volume</p>
         <p class="text-[#7C7C7C] text-sm">$</p>
       </div>
     </div>
     <div
-      class="flex-1 py-[25px] px-[30px] bg-[#1C1C1C] shadow-[0_0_8px_#A1DBFE] rounded-[20px] flex flex-col justify-between"
+      class="flex-[1_1_0px] py-[25px] px-[30px] bg-[#1C1C1C] shadow-[0_0_8px_#A1DBFE] rounded-[20px]"
     >
       <p class="text-[25px]">APY</p>
       <p class="text-[40px] font-bold">10$</p>
     </div>
     <div
-      class="flex-1 md:flex-3 py-[25px] px-[30px] bg-[#1C1C1C] shadow-[0_0_8px_#A1DBFE] rounded-[20px] flex flex-col justify-between gap-10"
+      class="flex-[3_3_0px] py-[25px] px-[30px] bg-[#1C1C1C] shadow-[0_0_8px_#A1DBFE] rounded-[20px]"
     >
       <div class="flex justify-between items-center">
         <div class="flex items-center gap-2.5 text-[25px] font-semibold">
@@ -50,14 +50,37 @@
       <p class="text-[30px] font-semibold">value</p>
     </div>
   </div>
+
+  <div class="mt-10 bg-[#1C1C1C] shadow-[0_0_8px_#A1DBFE] rounded-[20px] p-6">
+    <h2 class="text-2xl font-bold mb-4">Vault Information</h2>
+    <div v-if="pending">Loading vault data...</div>
+    <div v-else-if="error">Error loading vault data: {{ error.message }}</div>
+    <div v-else-if="vaultData" class="grid grid-cols-3 gap-4">
+      <div>
+        <p class="text-gray-400">Name</p>
+        <p class="text-xl font-semibold">{{ (vaultData as any).name }}</p>
+      </div>
+      <div>
+        <p class="text-gray-400">Symbol</p>
+        <p class="text-xl font-semibold">{{ (vaultData as any).symbol }}</p>
+      </div>
+      <div>
+        <p class="text-gray-400">TVL</p>
+        <p class="text-xl font-semibold">
+          {{ (vaultData as any).totalValueLocked }}
+        </p>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { useAccount } from "@wagmi/vue";
-import { computed } from "vue";
-import Connect from "@/components/Connect.vue";
-import Account from "@/components/Account.vue";
 
-const { status } = useAccount();
-const isConnected = computed(() => status.value === "connected");
+const {
+  data: vaultData,
+  pending,
+  error,
+  refresh,
+} = await useFetch("/api/vault");
 </script>

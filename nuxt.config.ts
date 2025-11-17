@@ -5,6 +5,7 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineNuxtConfig({
   builder: "vite",
   devtools: { enabled: true },
+  ssr: true,
   modules: ["@wagmi/vue/nuxt"],
   vite: {
     server: {

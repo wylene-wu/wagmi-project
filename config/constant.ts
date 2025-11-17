@@ -22,3 +22,8 @@ export const Chains = [ethMainnet, ethSepolia] as readonly [
   ImgChain,
   ...ImgChain[]
 ];
+
+export const VaultAddress = process.env
+  .NUXT_PUBLIC_VAULT_ADDRESS as `0x${string}`;
+export const VaultWithdrawAddress = process.env
+  .NUXT_PUBLIC_VAULT_WITHDRAW_QUEUE_ADDRESS as `0x${string}`;
