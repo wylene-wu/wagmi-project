@@ -18,11 +18,24 @@
 @theme {
   --font-display: "Inter", "sans-serif";
   --color-primary: oklch(0.84 0.18 117.33);
+  --color-bg: #050a12;
+  --color-overlay: #02050a;
+  --color-panel: #09111f;
+  --color-surface: #0a111d;
+  --color-accent: #8fe7ff;
+  --color-mint: #2be7c8;
+  --color-mint-text: #82f7da;
+  --color-text: #f3f4f5;
+  --color-muted: #a7b4c7;
+  --color-subtle: #7f8ea3;
+  --color-soft: #d7e2f0;
+  --color-danger: #fca5a5;
+  --color-danger-bg: #f87171;
 }
 
 @layer base {
   body {
-    @apply bg-[#0A0A0A];
+    @apply bg-bg;
     @apply text-white;
     height: 100vh;
   }

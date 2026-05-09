@@ -4,7 +4,6 @@ import {
   ToggleIcon,
   DashboardIcon,
   TransactionsIcon,
-  SettingsIcon,
   StakeIcon,
 } from "@/components/icons";
 
@@ -37,49 +36,64 @@ const { isSidebarCollapsed, toggleSidebar } = useSidebar();
 <template>
   <div
     :class="[
-      'fixed h-full left-0 bg-[#0A0A0A]  px-4 pt-8 shadow-lg z-10 transition-all duration-300',
+      'fixed left-0 z-10 h-full overflow-hidden border-r border-accent/15 bg-panel/82 px-4 pt-8 shadow-[18px_0_64px_rgba(0,0,0,0.20),0_0_32px_color-mix(in_srgb,var(--color-accent)_6%,transparent)] backdrop-blur-xl transition-all duration-300',
       isSidebarCollapsed ? 'w-20' : 'w-64',
     ]"
   >
     <div
+      class="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,color-mix(in_srgb,var(--color-surface)_68%,transparent),transparent_42%),radial-gradient(circle_at_top_left,color-mix(in_srgb,var(--color-accent)_14%,transparent),transparent_34%),radial-gradient(circle_at_bottom_left,color-mix(in_srgb,var(--color-mint)_10%,transparent),transparent_28%)]"
+    />
+    <div
       :class="[
-        'pb-4 flex items-center',
+        'pb-6 relative flex items-center',
         isSidebarCollapsed ? 'justify-center' : 'justify-between',
       ]"
     >
       <h2
         :class="[
-          'text-xl font-bold truncate',
+          'text-xl font-bold truncate text-white',
           isSidebarCollapsed ? 'hidden' : 'block',
         ]"
       >
         Menu
       </h2>
-      <div class="p-1 rounded-full hover:bg-[#A1DBFE]">
+      <button
+        type="button"
+        aria-label="Toggle sidebar"
+        class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-accent/15 bg-surface/75 text-accent transition duration-200 hover:border-accent/45 hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        @click="toggleSidebar"
+      >
         <ToggleIcon
-          @click="toggleSidebar"
-          :class="['w-5 h-5 ', isSidebarCollapsed ? 'rotate-180' : 'rotate-0']"
+          :class="[
+            'h-5 w-5 transition-transform duration-300',
+            isSidebarCollapsed ? 'rotate-180' : 'rotate-0',
+          ]"
         />
-      </div>
+      </button>
     </div>
-    <nav>
+    <nav class="relative" aria-label="Primary navigation">
       <ul class="space-y-2">
         <li v-for="link in LinkArrays" :key="link.name">
           <NuxtLink
-            :to="link.path === 'Dashboard' ? '/' : link.path"
+            :to="link.path"
             :class="[
-              'py-2  rounded  transition-colors flex items-center font-medium hover:bg-[#A1DBFE] hover:text-[#0a0a0a]',
-              isSidebarCollapsed ? 'justify-center px-1' : 'justify-start px-4',
+              'group flex min-h-12 items-center rounded-2xl border font-medium text-muted transition duration-200 hover:border-accent/35 hover:bg-accent/10 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+              isSidebarCollapsed
+                ? 'justify-center px-1'
+                : 'justify-start gap-3 px-4',
             ]"
-            active-class="bg-[#A1DBFE] text-[#0a0a0a]"
+            active-class="border-accent/55 bg-accent/10 !text-accent shadow-[0_0_28px_color-mix(in_srgb,var(--color-mint)_10%,transparent)]"
           >
             <component
               :is="link.icon"
-              :class="[isSidebarCollapsed ? 'w-6 h-6' : 'w-4 h-4']"
+              :class="[
+                'shrink-0 transition duration-200',
+                isSidebarCollapsed ? 'h-6 w-6' : 'h-4 w-4',
+              ]"
             />
             <span
               :class="[
-                'ml-3 truncate',
+                'truncate text-sm',
                 isSidebarCollapsed ? 'hidden' : 'block',
               ]"
               >{{ link.name }}</span
@@ -88,14 +102,5 @@ const { isSidebarCollapsed, toggleSidebar } = useSidebar();
         </li>
       </ul>
     </nav>
-
-    <div
-      :class="[
-        'absolute bottom-4 left-4 right-4',
-        isSidebarCollapsed ? 'hidden' : 'block',
-      ]"
-    >
-      <p class="text-sm text-blue-300">Menu</p>
-    </div>
   </div>
 </template>

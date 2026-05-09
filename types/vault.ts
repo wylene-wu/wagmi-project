@@ -14,6 +14,7 @@ export type VaultData = {
   limit_usd: number;
   limit_base_token: string;
   total_supply: string;
+  tvl: string;
 };
 
 export type PointsData = {
