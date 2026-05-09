@@ -17,6 +17,7 @@ const ActionsArrays = [
 
 const { disconnect } = useDisconnect();
 const { status: connectStatus, address, chain } = useAccount();
+const toast = useToast();
 const isShowModal = ref(false);
 const isConnected = computed(() => connectStatus.value === "connected");
 
@@ -31,6 +32,7 @@ const closeModal = () => {
 const handleCopyAddress = async () => {
   if (!address.value) return;
   await navigator.clipboard.writeText(address.value);
+  toast.success("Copy address success");
   closeModal();
 };
 
