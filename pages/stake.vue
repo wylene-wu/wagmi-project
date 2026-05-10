@@ -16,7 +16,9 @@
       <div class="relative space-y-5">
         <div>
           <p class="text-xs font-semibold uppercase text-subtle">Action</p>
-          <h2 class="mt-1 text-xl font-bold text-white">Stake input</h2>
+          <h2 class="mt-1 text-xl font-bold text-white">
+            {{ submitLoading ? "Processing stake" : "Stake input" }}
+          </h2>
         </div>
 
         <div class="rounded-xl border border-white/10 bg-surface/90 p-4">
@@ -26,8 +28,9 @@
               type="text"
               class="min-h-14 flex-1 bg-transparent text-3xl font-bold text-white outline-none placeholder:text-subtle focus:ring-0"
               placeholder="0"
-              v-model="stakeInputVal"
+              :value="stakeInputVal"
               @input="handleStakeInputChange"
+              :disabled="submitLoading"
             />
             <div
               class="flex min-h-12 items-center gap-3 rounded-2xl border border-accent/20 bg-accent/10 px-4"
@@ -44,8 +47,9 @@
               <span>Balance: {{ ethBalance?.balance || "-" }}</span>
               <button
                 type="button"
-                class="cursor-pointer min-h-9 rounded-full border border-accent/25 bg-accent/10 px-4 text-sm font-semibold text-accent transition duration-200 hover:border-accent/55 hover:bg-accent/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                class="cursor-pointer min-h-9 rounded-full border border-accent/25 bg-accent/10 px-4 text-sm font-semibold text-accent transition duration-200 hover:border-accent/55 hover:bg-accent/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:border-accent/10 disabled:bg-accent/5 disabled:text-accent/30"
                 @click="handleMaxClick"
+                :disabled="submitLoading"
               >
                 Max
               </button>
@@ -86,12 +90,67 @@
           </div>
         </div>
 
+        <div
+          class="grid gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-4 sm:grid-cols-2"
+        >
+          <div
+            v-for="step in transactionSteps"
+            :key="step.id"
+            :class="[
+              'relative overflow-hidden rounded-2xl border p-4 transition duration-200',
+              step.id === activeStakeStep
+                ? 'border-accent/45 bg-accent/10 shadow-[0_0_28px_color-mix(in_srgb,var(--color-accent)_12%,transparent)]'
+                : isTransactionStepDone(step.id)
+                  ? 'border-mint/35 bg-mint/10'
+                  : 'border-white/10 bg-panel/70',
+            ]"
+          >
+            <div class="flex items-start gap-3">
+              <span
+                :class="[
+                  'mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-bold',
+                  step.id === activeStakeStep
+                    ? 'border-accent/50 text-accent'
+                    : isTransactionStepDone(step.id)
+                      ? 'border-mint/50 text-mint-text'
+                      : 'border-white/15 text-subtle',
+                ]"
+              >
+                <span
+                  v-if="step.id === activeStakeStep"
+                  class="h-2 w-2 animate-pulse rounded-full bg-accent motion-reduce:animate-none"
+                />
+                <span v-else-if="isTransactionStepDone(step.id)">✓</span>
+                <span v-else>{{ step.order }}</span>
+              </span>
+              <div class="min-w-0">
+                <p
+                  :class="[
+                    'font-semibold',
+                    step.id === activeStakeStep
+                      ? 'text-accent'
+                      : isTransactionStepDone(step.id)
+                        ? 'text-mint-text'
+                        : 'text-white',
+                  ]"
+                >
+                  {{ step.title }}
+                </p>
+                <p class="mt-1 text-xs leading-5 text-muted">
+                  {{ step.description }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <button
           type="button"
           class="cursor-pointer min-h-14 w-full rounded-2xl border border-accent/30 bg-accent/15 text-lg font-semibold text-accent shadow-[0_0_32px_color-mix(in_srgb,var(--color-accent)_14%,transparent)] transition duration-200 hover:border-accent/60 hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-4 focus-visible:ring-offset-bg disabled:cursor-not-allowed disabled:border-accent/10 disabled:bg-accent/5 disabled:text-accent/30 disabled:shadow-none disabled:hover:border-accent/10 disabled:hover:bg-accent/5"
           :disabled="isStakeDisabled"
+          @click="handleStakeSubmit"
         >
-          Stake
+          {{ submitLoading ? "Processing..." : "Stake" }}
         </button>
       </div>
     </section>
@@ -101,36 +160,147 @@
     >
       <div class="flex items-center justify-between gap-4">
         <p class="text-subtle">Exchange Rate</p>
-        <p class="font-semibold text-soft">1 ETH = 1000 Tokens</p>
+        <p class="font-semibold text-soft">
+          1 ETH = {{ tokensPerStEth || "-" }} {{ wstethBalance?.symbol }}
+        </p>
       </div>
       <div class="flex items-center justify-between gap-4">
         <p class="text-subtle">Fee</p>
-        <p class="font-semibold text-soft">1%</p>
+        <p :class="['text-right font-semibold']">
+          {{
+            stakeInputValDecimal.eq(0)
+              ? "-"
+              : approveFeeEth
+                ? `${approveFeeEth} ETH`
+                : "-"
+          }}
+        </p>
       </div>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { useAccount } from "@wagmi/vue";
+import { computed, onBeforeUnmount, ref, watch } from "vue";
 import Decimal from "decimal.js";
+
 import { TransferIcon } from "@/components/icons";
 import useWalletBalance from "@/composables/useWalletBalance";
+import useWriteContractTransaction from "@/composables/useWriteContractTransaction";
+import { formatEther, formatUnits, parseUnits } from "viem";
+import { stETHAbi } from "@/contracts/abi/stETH";
+import { wstETHAbi } from "@/contracts/abi/wstETH";
+import { getTransactionFeeInfo } from "@/utils/getTransactionFee";
+import useTokensPerStEth from "@/composables/useTokensPerStEth";
+import { defaultChain } from "@/config/constant";
 
 definePageMeta({
   layout: "default",
 });
+const transactionSteps: TransactionStep[] = [
+  {
+    id: "approve",
+    order: 1,
+    title: "Approve",
+    description: "Approve stETH wrapping and submit ETH for stETH.",
+  },
+  {
+    id: "wrap",
+    order: 2,
+    title: "Wrap",
+    description: "Wrap received stETH into wstETH.",
+  },
+];
 
-const { ethBalance, wstethBalance } = useWalletBalance();
+type StakeStep = "idle" | "approve" | "wrap" | "success";
+type TransactionStep = {
+  id: Extract<StakeStep, "approve" | "wrap">;
+  order: number;
+  title: string;
+  description: string;
+};
 
+const runtimeConfig = useRuntimeConfig();
+const { StETHAddress, WstETHAddress, VaultContractDecimals } =
+  runtimeConfig.public;
+const { ethBalance, wstethBalance, refetchBalances } = useWalletBalance();
+const { address, chainId } = useAccount();
+const { simulateAndWriteTransaction } = useWriteContractTransaction();
+const toast = useToast();
+const tokensPerStEth = useTokensPerStEth();
+
+const submitLoading = ref(false);
 const stakeInputVal = ref("");
+const approveFeeEth = ref("");
+const activeStakeStep = ref<StakeStep>("idle");
+
+const enabled = chainId.value === defaultChain.id && !!address.value;
+const completedStepIdsByActiveStep: Record<StakeStep, TransactionStep["id"][]> =
+  {
+    idle: [],
+    approve: [],
+    wrap: ["approve"],
+    success: ["approve", "wrap"],
+  };
+const isTransactionStepDone = (stepId: TransactionStep["id"]): boolean =>
+  completedStepIdsByActiveStep[activeStakeStep.value].includes(stepId);
+
+let approveFeeRequestId = 0;
+let approveFeeTimer: ReturnType<typeof setTimeout> | undefined;
+
 const inputTokenValueDecimal = computed(
   () => new Decimal(ethBalance.value?.balance || 0),
 );
 const stakeInputValDecimal = computed(
   () => new Decimal(stakeInputVal.value || 0),
 );
-const isStakeDisabled = computed(() => stakeInputValDecimal.value.eq(0));
+const isStakeDisabled = computed(
+  () =>
+    submitLoading.value ||
+    !address.value ||
+    stakeInputValDecimal.value.eq(0) ||
+    !enabled,
+);
+const parsedStakeAmount = computed(() =>
+  parseUnits(
+    stakeInputValDecimal.value.toString(),
+    Number(VaultContractDecimals),
+  ),
+);
+
+watch(
+  [address, parsedStakeAmount, isStakeDisabled],
+  ([account, amountInput, isDisabled]) => {
+    if (isDisabled) {
+      approveFeeEth.value = "";
+      return;
+    }
+    if (approveFeeTimer) clearTimeout(approveFeeTimer);
+
+    const requestId = ++approveFeeRequestId;
+    approveFeeTimer = setTimeout(async () => {
+      const feeInfo = await getTransactionFeeInfo({
+        account,
+        address: StETHAddress as `0x${string}`,
+        abi: stETHAbi,
+        functionName: "approve",
+        args: [WstETHAddress as `0x${string}`, amountInput],
+      });
+
+      if (requestId !== approveFeeRequestId) return;
+      approveFeeEth.value = formatDisplayDecimal(
+        formatUnits(feeInfo.gas * feeInfo.maxFeePerGas, 18),
+        6,
+      );
+    }, 350);
+  },
+  { flush: "post" },
+);
+
+onBeforeUnmount(() => {
+  if (approveFeeTimer) clearTimeout(approveFeeTimer);
+});
 
 const handleMaxClick = (): void => {
   const balance = ethBalance.value?.balance;
@@ -140,6 +310,7 @@ const handleMaxClick = (): void => {
 const handleStakeInputChange = (e: Event): void => {
   const target = e.target as HTMLInputElement;
   let value = target.value;
+
   if (value === "") {
     stakeInputVal.value = "";
     return;
@@ -175,5 +346,58 @@ const handleStakeInputChange = (e: Event): void => {
 
   stakeInputVal.value = value;
   target.value = stakeInputVal.value;
+};
+
+const handleStakeSubmit = async (): Promise<void> => {
+  if (isStakeDisabled) return;
+
+  try {
+    submitLoading.value = true;
+    if (["idle", "approve"].includes(activeStakeStep.value)) {
+      activeStakeStep.value = "approve";
+      await simulateAndWriteTransaction(
+        {
+          account: address.value,
+          address: StETHAddress as `0x${string}`,
+          abi: stETHAbi,
+          functionName: "approve",
+          args: [WstETHAddress as `0x${string}`, parsedStakeAmount.value],
+        },
+        true,
+      );
+      await simulateAndWriteTransaction({
+        account: address.value,
+        address: StETHAddress as `0x${string}`,
+        abi: stETHAbi,
+        functionName: "submit",
+        args: [address.value],
+        value: parsedStakeAmount.value,
+      });
+
+      activeStakeStep.value = "wrap";
+    }
+
+    await simulateAndWriteTransaction({
+      account: address.value,
+      address: WstETHAddress as `0x${string}`,
+      abi: wstETHAbi,
+      functionName: "wrap",
+      args: [parsedStakeAmount.value],
+    });
+
+    activeStakeStep.value = "success";
+    stakeInputVal.value = "";
+    await refetchBalances();
+    activeStakeStep.value = "idle";
+  } catch (error: { message?: string; shortMessage?: string } | any) {
+    console.error("Stake transaction error", error);
+    const errorMessage =
+      error?.shortMessage || error?.message || "Please try again.";
+    toast.error("Stake transaction failed", {
+      message: errorMessage,
+    });
+  } finally {
+    submitLoading.value = false;
+  }
 };
 </script>

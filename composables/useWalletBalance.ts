@@ -75,21 +75,25 @@ export default function useWalletBalance() {
       ETH: {
         symbol: "ETH",
         balance: ethBalance?.result
-          ? formatUnits(ethBalance?.result as bigint, 18)
+          ? formatDisplayDecimal(formatUnits(ethBalance.result as bigint, 18))
           : "",
         value: ethBalance?.result as bigint,
       },
       stETH: {
         symbol: stethSymbol?.result as string,
         balance: stethBalance?.result
-          ? formatUnits(stethBalance?.result as bigint, 18)
+          ? formatDisplayDecimal(
+              formatUnits(stethBalance?.result as bigint, 18),
+            )
           : "",
         value: stethBalance?.result as bigint,
       },
       wstETH: {
         symbol: wstethSymbol?.result as string,
         balance: wstethBalance?.result
-          ? formatUnits(wstethBalance?.result as bigint, 18)
+          ? formatDisplayDecimal(
+              formatUnits(wstethBalance?.result as bigint, 18),
+            )
           : "",
         value: wstethBalance?.result as bigint,
       },

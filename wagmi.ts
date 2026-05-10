@@ -1,7 +1,6 @@
 import { cookieStorage, createConfig, createStorage, http } from "@wagmi/vue";
-import { mainnet, sepolia, hoodi } from "@wagmi/vue/chains";
 import { injected, metaMask } from "@wagmi/vue/connectors";
-import { Chains } from "@/config/constant";
+import { Chains, defaultChain, ethMainnet, ethSepolia } from "@/config/constant";
 
 export const config = createConfig({
   chains: Chains,
@@ -11,9 +10,9 @@ export const config = createConfig({
   }),
   ssr: true,
   transports: {
-    [mainnet.id]: http(),
-    [sepolia.id]: http(),
-    [hoodi.id]: http(),
+    [defaultChain.id]: http(),
+    [ethMainnet.id]: http(),
+    [ethSepolia.id]: http(),
   },
 });
 
