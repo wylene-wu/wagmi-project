@@ -21,13 +21,13 @@
 
         <div class="rounded-xl border border-white/10 bg-surface/90 p-4">
           <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <label class="sr-only" for="stake-amount">Stake amount</label>
             <input
               id="stake-amount"
               type="text"
-              inputmode="decimal"
               class="min-h-14 flex-1 bg-transparent text-3xl font-bold text-white outline-none placeholder:text-subtle focus:ring-0"
               placeholder="0"
+              v-model="stakeInputVal"
+              @input="handleStakeInputChange"
             />
             <div
               class="flex min-h-12 items-center gap-3 rounded-2xl border border-accent/20 bg-accent/10 px-4"
@@ -41,10 +41,11 @@
           >
             <p>$</p>
             <div class="flex items-center gap-3">
-              <span>Balance: --</span>
+              <span>Balance: {{ ethBalance?.balance || "-" }}</span>
               <button
                 type="button"
-                class="min-h-9 rounded-full border border-accent/25 bg-accent/10 px-4 text-sm font-semibold text-accent transition duration-200 hover:border-accent/55 hover:bg-accent/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                class="cursor-pointer min-h-9 rounded-full border border-accent/25 bg-accent/10 px-4 text-sm font-semibold text-accent transition duration-200 hover:border-accent/55 hover:bg-accent/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                @click="handleMaxClick"
               >
                 Max
               </button>
@@ -67,26 +68,28 @@
               id="receive-amount"
               type="text"
               inputmode="decimal"
+              readonly
               class="min-h-14 flex-1 bg-transparent text-3xl font-bold text-white outline-none placeholder:text-subtle focus:ring-0"
               placeholder="0"
             />
             <div
               class="flex min-h-12 items-center rounded-2xl border border-mint/20 bg-mint/10 px-4 font-semibold text-mint-text"
             >
-              Token
+              {{ wstethBalance?.symbol }}
             </div>
           </div>
           <div
             class="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-muted"
           >
             <p>$</p>
-            <p>Balance: --</p>
+            <p>Balance: {{ wstethBalance?.balance || "-" }}</p>
           </div>
         </div>
 
         <button
           type="button"
-          class="min-h-14 w-full rounded-2xl border border-accent/30 bg-accent/15 text-lg font-semibold text-accent shadow-[0_0_32px_color-mix(in_srgb,var(--color-accent)_14%,transparent)] transition duration-200 hover:border-accent/60 hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-4 focus-visible:ring-offset-bg"
+          class="cursor-pointer min-h-14 w-full rounded-2xl border border-accent/30 bg-accent/15 text-lg font-semibold text-accent shadow-[0_0_32px_color-mix(in_srgb,var(--color-accent)_14%,transparent)] transition duration-200 hover:border-accent/60 hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-4 focus-visible:ring-offset-bg disabled:cursor-not-allowed disabled:border-accent/10 disabled:bg-accent/5 disabled:text-accent/30 disabled:shadow-none disabled:hover:border-accent/10 disabled:hover:bg-accent/5"
+          :disabled="isStakeDisabled"
         >
           Stake
         </button>
@@ -109,8 +112,68 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from "vue";
+import Decimal from "decimal.js";
 import { TransferIcon } from "@/components/icons";
+import useWalletBalance from "@/composables/useWalletBalance";
+
 definePageMeta({
   layout: "default",
 });
+
+const { ethBalance, wstethBalance } = useWalletBalance();
+
+const stakeInputVal = ref("");
+const inputTokenValueDecimal = computed(
+  () => new Decimal(ethBalance.value?.balance || 0),
+);
+const stakeInputValDecimal = computed(
+  () => new Decimal(stakeInputVal.value || 0),
+);
+const isStakeDisabled = computed(() => stakeInputValDecimal.value.eq(0));
+
+const handleMaxClick = (): void => {
+  const balance = ethBalance.value?.balance;
+  stakeInputVal.value = balance || "0";
+};
+
+const handleStakeInputChange = (e: Event): void => {
+  const target = e.target as HTMLInputElement;
+  let value = target.value;
+  if (value === "") {
+    stakeInputVal.value = "";
+    return;
+  }
+  if (!/^\d*\.?\d*$/.test(value)) {
+    stakeInputVal.value = "";
+    target.value = stakeInputVal.value;
+    return;
+  }
+
+  if (value.startsWith(".")) {
+    value = `0${value}`;
+  }
+
+  const [intParts, decimalParts] = value.split(".");
+  const endsWithDot = value.endsWith(".");
+  if (intParts.length > 1 && intParts.startsWith("0")) {
+    value =
+      (intParts.replace(/^0+/, "") || "0") +
+      (decimalParts ? `.${decimalParts}` : endsWithDot ? "." : "");
+  }
+
+  const decimalVault = new Decimal(endsWithDot ? `${value}0` : value);
+
+  if (decimalVault.gt(inputTokenValueDecimal.value)) {
+    stakeInputVal.value = inputTokenValueDecimal.value.toString();
+    target.value = stakeInputVal.value;
+    return;
+  }
+  if (decimalParts?.length > 5) {
+    value = decimalVault.toFixed(5, Decimal.ROUND_DOWN);
+  }
+
+  stakeInputVal.value = value;
+  target.value = stakeInputVal.value;
+};
 </script>

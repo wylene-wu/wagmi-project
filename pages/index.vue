@@ -70,13 +70,21 @@
           </div>
           <NuxtLink
             to="/stake"
-            class="rounded-full border border-accent/25 bg-accent/10 px-4 py-2 text-sm font-semibold text-accent transition duration-200 hover:border-accent/55 hover:bg-accent/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            :class="[
+              'rounded-full border border-accent/25 bg-accent/10 px-4 py-2 text-sm font-semibold text-accent transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+              ethBalance?.balance && ethBalance.balance !== '-'
+                ? 'hover:border-accent/55 hover:bg-accent/15 cursor-pointer'
+                : 'opacity-50 cursor-not-allowed',
+            ]"
+            :disabled="!ethBalance?.balance"
           >
             Stake
           </NuxtLink>
         </div>
         <div class="relative mt-8">
-          <p class="text-4xl font-bold text-white">-</p>
+          <p class="text-4xl font-bold text-white">
+            {{ ethBalance?.balance || "_" }}
+          </p>
           <p class="mt-2 text-sm text-muted">$ -</p>
         </div>
       </div>
@@ -91,7 +99,7 @@
       </div>
 
       <div
-        class="relative overflow-hidden rounded-[24px] border border-accent/20 bg-surface/90 p-6 shadow-[0_22px_80px_rgba(0,0,0,0.28),0_0_34px_color-mix(in_srgb,var(--color-accent)_10%,transparent)] backdrop-blur-xl lg:col-span-3"
+        class="relative overflow-hidden rounded-3xl border border-accent/20 bg-surface/90 p-6 shadow-[0_22px_80px_rgba(0,0,0,0.28),0_0_34px_color-mix(in_srgb,var(--color-accent)_10%,transparent)] backdrop-blur-xl lg:col-span-3"
       >
         <div class="flex items-start justify-between gap-4">
           <div class="flex items-center gap-3">
@@ -102,20 +110,28 @@
             </span>
             <div>
               <p class="text-sm font-semibold uppercase text-subtle">
-                {{ vaultData?.symbol || "_" }} position
+                {{ wstethBalance?.symbol || "_" }} balance
               </p>
               <p class="mt-1 text-sm text-muted">Staked exposure</p>
             </div>
           </div>
           <button
             type="button"
-            class="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-soft transition duration-200 hover:border-accent/35 hover:bg-accent/10 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            :class="[
+              'rounded-full border border-white/10 bg-white/4 px-4 py-2 text-sm font-semibold text-soft transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+              wstethBalance?.balance && wstethBalance.balance !== '-'
+                ? 'hover:border-accent/35 hover:bg-accent/10 hover:text-accent cursor-pointer'
+                : 'opacity-50 cursor-not-allowed',
+            ]"
+            :disabled="!wstethBalance?.balance"
           >
             Unstake
           </button>
         </div>
         <div class="mt-8">
-          <p class="text-4xl font-bold text-white">-</p>
+          <p class="text-4xl font-bold text-white">
+            {{ wstethBalance?.balance || "_" }}
+          </p>
           <p class="mt-2 text-sm text-muted">$ -</p>
         </div>
       </div>
@@ -123,7 +139,7 @@
 
     <section class="grid gap-5 md:grid-cols-2">
       <div
-        class="relative overflow-hidden rounded-[24px] border border-white/10 bg-panel p-6 shadow-[0_18px_70px_rgba(0,0,0,0.26)]"
+        class="relative overflow-hidden rounded-3xl border border-white/10 bg-panel p-6 shadow-[0_18px_70px_rgba(0,0,0,0.26)]"
       >
         <div
           class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,color-mix(in_srgb,var(--color-mint)_10%,transparent),transparent_42%)]"
@@ -144,8 +160,11 @@ import type { PointsData, VaultData } from "@/types/vault";
 import { useAccount } from "@wagmi/vue";
 import { computed, watch } from "vue";
 
+import useWalletBalance from "@/composables/useWalletBalance";
+
 const { address } = useAccount();
 const addressParam = computed(() => address.value || "");
+const { ethBalance, wstethBalance } = useWalletBalance();
 
 const { data: vaultData } = await useFetch<VaultData>("/api/vault");
 const { data: pointsData, refresh: pointsRefresh } = await useFetch<PointsData>(
