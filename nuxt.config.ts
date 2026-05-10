@@ -33,4 +33,17 @@ export default defineNuxtConfig({
     host: "localhost",
     port: 4000,
   },
+  runtimeConfig: {
+    public: {
+      VaultAddress: process.env.NUXT_PUBLIC_VAULT_ADDRESS,
+      VaultWithdrawAddress:
+        process.env.NUXT_PUBLIC_VAULT_WITHDRAW_QUEUE_ADDRESS,
+      StETHAddress: process.env.NUXT_PUBLIC_STETH,
+      WstETHAddress: process.env.NUXT_PUBLIC_WSTETH,
+      MultiCallAddress: process.env.NUXT_PUBLIC_MULTICALL,
+      PriceOracleETHAddress: process.env.NUXT_PUBLIC_PRICE_ORACLE_ETH,
+
+      VaultContractDecimals: process.env.NUXT_PUBLIC_VAULT_CONTRACT_DECIMALS,
+    },
+  },
 });

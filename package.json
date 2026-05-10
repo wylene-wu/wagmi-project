@@ -15,13 +15,16 @@
   },
   "dependencies": {
     "@tanstack/vue-query": ">=5.45.0",
+    "@wagmi/core": "^3.4.9",
     "@wagmi/vue": "latest",
     "clsx": "^2.1.1",
+    "decimal.js": "^10.6.0",
     "nuxt": "^3.11.2",
     "tailwind-merge": "^3.3.1",
     "viem": "latest",
     "vue": ">=3.4.21",
-    "vue-router": "^4.3.2"
+    "vue-router": "^4.3.2",
+    "wagmi": "^3.6.11"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.16",

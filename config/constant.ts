@@ -1,4 +1,4 @@
-import { mainnet, sepolia, type Chain } from "@wagmi/vue/chains";
+import { mainnet, sepolia, hoodi, type Chain } from "@wagmi/vue/chains";
 
 export type WalletName = keyof typeof WalletIcons;
 export type ImgChain = Chain & { icon: string };
@@ -18,9 +18,16 @@ export const ethSepolia: ImgChain = {
   icon: "/imgs/ethereum.svg",
 };
 
-export const Chains = [ethMainnet, ethSepolia] as readonly [
+export const ethHoodi: ImgChain = {
+  ...hoodi,
+  icon: "/imgs/ethereum.svg",
+};
+
+export const defaultChain = ethHoodi;
+
+export const Chains = [defaultChain, ethMainnet, ethSepolia] as readonly [
   ImgChain,
-  ...ImgChain[]
+  ...ImgChain[],
 ];
 
 export const VaultAddress = process.env

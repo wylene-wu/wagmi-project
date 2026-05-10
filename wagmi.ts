@@ -1,5 +1,5 @@
 import { cookieStorage, createConfig, createStorage, http } from "@wagmi/vue";
-import { mainnet, sepolia } from "@wagmi/vue/chains";
+import { mainnet, sepolia, hoodi } from "@wagmi/vue/chains";
 import { injected, metaMask } from "@wagmi/vue/connectors";
 import { Chains } from "@/config/constant";
 
@@ -13,6 +13,7 @@ export const config = createConfig({
   transports: {
     [mainnet.id]: http(),
     [sepolia.id]: http(),
+    [hoodi.id]: http(),
   },
 });
 
