@@ -22,6 +22,10 @@ export default function useWalletBalance() {
   >({ ETH: undefined, stETH: undefined, wstETH: undefined });
   const loading = ref(false);
 
+  const ethBalance = computed(() => balances.value.ETH);
+  const stethBalance = computed(() => balances.value.stETH);
+  const wstethBalance = computed(() => balances.value.wstETH);
+
   const { MultiCallAddress, StETHAddress, WstETHAddress } =
     runtimeConfig.public;
 
@@ -101,11 +105,22 @@ export default function useWalletBalance() {
     loading.value = false;
   };
 
-  const ethBalance = computed(() => balances.value.ETH);
-  const stethBalance = computed(() => balances.value.stETH);
-  const wstethBalance = computed(() => balances.value.wstETH);
-
   onMounted(fetchBalances);
+
+  watch(
+    () => [address.value, chainId.value],
+    () => {
+      if (enabled) {
+        fetchBalances();
+      } else {
+        balances.value = {
+          ETH: undefined,
+          stETH: undefined,
+          wstETH: undefined,
+        };
+      }
+    },
+  );
 
   return {
     refetchBalances: fetchBalances,

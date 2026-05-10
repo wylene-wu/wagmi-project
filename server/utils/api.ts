@@ -44,9 +44,6 @@ export const getConfiguredVaultAddress = () =>
     requiredMessage: "Vault address is not configured",
   });
 
-export const isSameAddress = (left?: string | null, right?: string | null) =>
-  Boolean(left && right && left.toLowerCase() === right.toLowerCase());
-
 export const fetchMellowArray = async <T>(
   path: string,
   errorMessage: string,
@@ -79,8 +76,7 @@ export const fetchMellowArray = async <T>(
 
 export const handleApiError = (error: unknown, fallbackMessage: string) => {
   const statusCode = error instanceof ApiError ? error.statusCode : 500;
-  const message =
-    error instanceof Error ? error.message : fallbackMessage;
+  const message = error instanceof Error ? error.message : fallbackMessage;
   const details = error instanceof ApiError ? error.details : undefined;
 
   throw createError({

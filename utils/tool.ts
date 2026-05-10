@@ -16,3 +16,6 @@ export function formatDisplayDecimal(
   }
   return val.toDecimalPlaces(decimal, Decimal.ROUND_DOWN).toString();
 }
+
+export const isSameAddress = (left?: string | null, right?: string | null) =>
+  Boolean(left && right && left.toLowerCase() === right.toLowerCase());

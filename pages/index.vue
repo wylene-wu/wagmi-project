@@ -62,9 +62,7 @@
               <img src="/imgs/ethereum.svg" class="h-7 w-7" alt="Ethereum" />
             </span>
             <div>
-              <p class="text-sm font-semibold uppercase text-subtle">
-                Wallet balance
-              </p>
+              <p class="text-sm font-semibold text-subtle">ETH balance</p>
               <p class="mt-1 text-sm text-muted">Available to stake</p>
             </div>
           </div>
@@ -109,7 +107,7 @@
               <img src="/imgs/ethereum.svg" class="h-7 w-7" alt="Ethereum" />
             </span>
             <div>
-              <p class="text-sm font-semibold uppercase text-subtle">
+              <p class="text-sm font-semibold text-subtle">
                 {{ wstethBalance?.symbol || "_" }} balance
               </p>
               <p class="mt-1 text-sm text-muted">Staked exposure</p>
@@ -161,10 +159,14 @@ import { useAccount } from "@wagmi/vue";
 import { computed, watch } from "vue";
 
 import useWalletBalance from "@/composables/useWalletBalance";
+import useETHPrice from "@/composables/useETHPrice";
 
 const { address } = useAccount();
 const addressParam = computed(() => address.value || "");
 const { ethBalance, wstethBalance } = useWalletBalance();
+
+// const price = useETHPrice();
+// console.log("wstethBalance", wstethBalance, price);
 
 const { data: vaultData } = await useFetch<VaultData>("/api/vault");
 const { data: pointsData, refresh: pointsRefresh } = await useFetch<PointsData>(

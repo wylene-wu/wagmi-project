@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import { useAccount, useDisconnect } from "@wagmi/vue";
+import { useAccount, useDisconnect, useSwitchChain } from "@wagmi/vue";
 import { Chains } from "@/config/constant";
 import { formatAddress } from "@/utils/wallet";
 
@@ -16,7 +16,8 @@ const ActionsArrays = [
 ];
 
 const { disconnect } = useDisconnect();
-const { status: connectStatus, address, chain } = useAccount();
+const { switchChain } = useSwitchChain();
+const { status: connectStatus, address, chain, chainId } = useAccount();
 const toast = useToast();
 const isShowModal = ref(false);
 const isConnected = computed(() => connectStatus.value === "connected");
@@ -38,6 +39,12 @@ const handleCopyAddress = async () => {
 
 const handleDisconnect = () => {
   disconnect();
+  closeModal();
+};
+
+const handleSwitchChain = (id: number) => {
+  if (id === chainId.value) return;
+  switchChain({ chainId: id });
   closeModal();
 };
 
@@ -115,11 +122,12 @@ watch(isConnected, (newIsConnected) => {
           <div
             v-for="c in Chains"
             :key="c.id"
+            @click="handleSwitchChain(c.id)"
             :class="[
-              'flex min-h-11 w-full items-center gap-2.5 rounded-2xl border px-3 py-2 text-left transition duration-200',
+              'flex min-h-11 w-full cursor-pointer items-center gap-2.5 rounded-2xl border px-3 py-2 text-left transition duration-200',
               c.id === chain?.id
                 ? 'border-mint/70 bg-mint/10 text-mint-text'
-                : 'border-transparent text-soft',
+                : 'border-transparent text-soft hover:text-accent',
             ]"
           >
             <img :src="c.icon" class="h-5 w-5 rounded-full bg-white" alt="" />

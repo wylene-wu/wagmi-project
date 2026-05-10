@@ -65,7 +65,7 @@
           </div>
         </div>
 
-        <div class="rounded-xl border border-white/10 bg-white/[0.04] p-4">
+        <div class="rounded-xl border border-white/10 bg-white/4 p-4">
           <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
             <label class="sr-only" for="receive-amount">Receive amount</label>
             <input
@@ -77,7 +77,7 @@
               placeholder="0"
             />
             <div
-              class="flex min-h-12 items-center rounded-2xl border border-mint/20 bg-mint/10 px-4 font-semibold text-mint-text"
+              class="min-w-10 flex min-h-12 items-center rounded-2xl border border-mint/20 bg-mint/10 px-4 font-semibold text-mint-text"
             >
               {{ wstethBalance?.symbol }}
             </div>
