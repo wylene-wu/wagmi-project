@@ -5,6 +5,7 @@ import SettingsIcon from "./SettingsIcon.vue";
 import StakeIcon from "./StakeIcon.vue";
 import TransferIcon from "./TransferIcon.vue";
 import WalletIcon from "./WalletIcon.vue";
+import ChatIcon from "./ChatIcon.vue";
 
 export {
   ToggleIcon,
@@ -14,4 +15,5 @@ export {
   StakeIcon,
   TransferIcon,
   WalletIcon,
+  ChatIcon,
 };

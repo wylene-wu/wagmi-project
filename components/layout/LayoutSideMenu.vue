@@ -5,6 +5,7 @@ import {
   DashboardIcon,
   TransactionsIcon,
   StakeIcon,
+  ChatIcon,
 } from "@/components/icons";
 
 const LinkArrays = [
@@ -17,6 +18,11 @@ const LinkArrays = [
     name: "Stake",
     path: "/stake",
     icon: StakeIcon,
+  },
+  {
+    name: "AI ChatBot",
+    path: "/ai-chat",
+    icon: ChatIcon,
   },
   {
     name: "Transactions",
