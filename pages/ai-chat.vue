@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref } from "vue";
+import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
 
 import type {
   AiChatBootstrapResponse,
@@ -14,18 +14,19 @@ definePageMeta({
   layout: "default",
 });
 
-const { data: chatBootstrap } = await useFetch<AiChatBootstrapResponse>(
+const { data: chatBootstrap } = useLazyFetch<AiChatBootstrapResponse>(
   "/api/ai/chat/bootstrap",
 );
 const { data: chatMessages } =
-  await useFetch<AiChatMessagesResponse>("/api/ai/chat");
+  useLazyFetch<AiChatMessagesResponse>("/api/ai/chat");
 
 const chatBootstrapState = computed(() => ({
   longContextItems: chatBootstrap.value?.longContextItems ?? [],
   predictionMetrics: chatBootstrap.value?.predictionMetrics ?? [],
   quickPrompts: chatBootstrap.value?.quickPrompts ?? [],
 }));
-const messages = ref<ChatMessage[]>(chatMessages.value?.messages ?? []);
+const messages = ref<ChatMessage[]>([]);
+const hasLoadedInitialMessages = ref(false);
 
 const chatInput = ref("");
 const isStreaming = ref(false);
@@ -256,10 +257,27 @@ const handleNewChat = async (): Promise<void> => {
   messages.value = chatMessages.messages;
 };
 
+const handleStopStream = (): void => {
+  streamRunId++;
+  stopActiveRenderer?.();
+  stopActiveRenderer = undefined;
+  isStreaming.value = false;
+};
+
 onBeforeUnmount(() => {
   streamRunId++;
   stopActiveRenderer?.();
 });
+
+watch(
+  chatMessages,
+  (nextMessages) => {
+    if (hasLoadedInitialMessages.value || !nextMessages?.messages) return;
+    messages.value = nextMessages.messages;
+    hasLoadedInitialMessages.value = true;
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
@@ -389,6 +407,23 @@ onBeforeUnmount(() => {
               :disabled="isStreaming"
             />
             <button
+              v-if="isStreaming"
+              type="button"
+              class="flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded-2xl border border-red-500/30 bg-red-500/10 text-red-400 transition duration-200 hover:border-red-500/60 hover:bg-red-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+              aria-label="Stop response"
+              @click="handleStopStream"
+            >
+              <svg
+                class="h-5 w-5"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <rect x="6" y="6" width="12" height="12" />
+              </svg>
+            </button>
+            <button
+              v-else
               type="submit"
               class="flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded-2xl border border-accent/25 bg-accent/10 text-accent transition duration-200 hover:border-accent/55 hover:bg-accent/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:border-accent/10 disabled:bg-accent/5 disabled:text-accent/30"
               :disabled="isSendDisabled"

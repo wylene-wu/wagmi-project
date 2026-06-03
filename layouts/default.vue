@@ -7,7 +7,7 @@ const route = useRoute();
 const { status } = useAccount();
 const isConnected = computed(() => status.value === "connected");
 const canViewPage = computed(
-  () => isConnected.value || route.path === "/ai-chat"
+  () => isConnected.value || route.path === "/ai-chat",
 );
 const { isSidebarCollapsed } = useSidebar();
 </script>
@@ -25,8 +25,8 @@ const { isSidebarCollapsed } = useSidebar();
       >
         <div class="flex-1 p-8 overflow-y-auto">
           <ClientOnly>
-            <Connect v-if="!canViewPage" />
-            <slot v-else />
+            <!-- <Connect v-if="!canViewPage" /> -->
+            <slot></slot>
           </ClientOnly>
         </div>
         <footer class="p-4 border-t border-gray-700 text-center text-gray-400">

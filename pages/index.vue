@@ -168,8 +168,8 @@ const { ethBalance, wstethBalance } = useWalletBalance();
 // const price = useETHPrice();
 // console.log("wstethBalance", wstethBalance, price);
 
-const { data: vaultData } = await useFetch<VaultData>("/api/vault");
-const { data: pointsData, refresh: pointsRefresh } = await useFetch<PointsData>(
+const { data: vaultData } = useLazyFetch<VaultData>("/api/vault");
+const { data: pointsData, refresh: pointsRefresh } = useLazyFetch<PointsData>(
   "/api/vault/points",
   {
     params: {
