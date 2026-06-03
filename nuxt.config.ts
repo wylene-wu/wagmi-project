@@ -34,6 +34,7 @@ export default defineNuxtConfig({
     port: 4000,
   },
   runtimeConfig: {
+    AiApiBaseUrl: process.env.NUXT_AI_API_BASE_URL ?? "http://localhost:3001/api",
     public: {
       VaultAddress: process.env.NUXT_PUBLIC_VAULT_ADDRESS,
       VaultWithdrawAddress:

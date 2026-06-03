@@ -1,6 +1,6 @@
 import { defineEventHandler, getQuery, getRequestURL } from "h3";
-import { VaultAddress } from "~/config/constant";
-import { VaultData } from "~/types/vault";
+import { VaultAddress } from "@/config/constant";
+import { VaultData } from "@/types/vault";
 
 const baseUrl = "https://points.mellow.finance/v1";
 

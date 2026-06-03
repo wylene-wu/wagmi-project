@@ -8,8 +8,27 @@ export type ChatMessage = {
   streaming?: boolean;
 };
 
+export type AiChatMessagesResponse = {
+  messages: ChatMessage[];
+};
+
+export type AiChatStreamTokenEvent = {
+  token: string;
+};
+
+export type ChatContextItem = {
+  label: string;
+  value: string;
+};
+
 export type PredictionMetric = {
   label: string;
   value: string;
   tone: "accent" | "mint" | "soft";
+};
+
+export type AiChatBootstrapResponse = {
+  longContextItems: ChatContextItem[];
+  predictionMetrics: PredictionMetric[];
+  quickPrompts: string[];
 };

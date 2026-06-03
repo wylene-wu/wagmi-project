@@ -19,3 +19,9 @@ export function formatDisplayDecimal(
 
 export const isSameAddress = (left?: string | null, right?: string | null) =>
   Boolean(left && right && left.toLowerCase() === right.toLowerCase());
+
+export const timeNowLabelFormat = () =>
+  new Intl.DateTimeFormat("en", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date());

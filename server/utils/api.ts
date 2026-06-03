@@ -85,3 +85,21 @@ export const handleApiError = (error: unknown, fallbackMessage: string) => {
     data: details ? { details } : undefined,
   });
 };
+
+export const throwProxyError = (
+  error: unknown,
+  fallbackMessage: string,
+): never => {
+  if (error instanceof Error) {
+    throw createError({
+      statusCode: 502,
+      statusMessage: fallbackMessage,
+      data: { details: error.message },
+    });
+  }
+
+  throw createError({
+    statusCode: 502,
+    statusMessage: fallbackMessage,
+  });
+};
