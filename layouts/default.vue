@@ -3,8 +3,12 @@ import { useSidebar } from "@/composables/useSidebar";
 import { useAccount } from "@wagmi/vue";
 import { computed } from "vue";
 
+const route = useRoute();
 const { status } = useAccount();
 const isConnected = computed(() => status.value === "connected");
+const canViewPage = computed(
+  () => isConnected.value || route.path === "/ai-chat"
+);
 const { isSidebarCollapsed } = useSidebar();
 </script>
 
@@ -21,7 +25,7 @@ const { isSidebarCollapsed } = useSidebar();
       >
         <div class="flex-1 p-8 overflow-y-auto">
           <ClientOnly>
-            <Connect v-if="!isConnected" />
+            <Connect v-if="!canViewPage" />
             <slot v-else />
           </ClientOnly>
         </div>
